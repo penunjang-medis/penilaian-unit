@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penilaian Lomba Kebersihan - RS Mitra Plumbon</title>
+<title>Login Penilaian Lomba Kebersihan</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -98,8 +98,8 @@
     const pass = document.getElementById("password").value.trim().toLowerCase();
 
     if (users[user] && users[user] === pass) {
-      alert("Login berhasil! Selamat datang " + user);
-      // Bisa diarahkan ke halaman penilaian
+      // Simpan nama penilai di localStorage
+      localStorage.setItem("penilai", user);
       window.location.href = "penilaian.html";
     } else {
       alert("Username atau password salah!");
