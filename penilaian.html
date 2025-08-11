@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Form Penilaian - Penilai</title>
 
-<!-- Firebase compat SDK (Realtime DB) -->
+<!-- Firebase compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
@@ -21,7 +21,6 @@
   .flex{display:flex;gap:12px;align-items:flex-start}
   .left{flex:1;min-width:300px}
   .right{width:320px}
-
   h2{margin:0 0 10px;color:var(--primary)}
   label{font-weight:600;margin-top:8px;display:block}
   select,input[type="number"],input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid #eaeff0}
@@ -83,21 +82,20 @@
       </select>
 
       <table aria-label="kriteria">
-        <thead><tr><th>No</th><th>Kriteria</th><th>Nilai (1-10)</th><th>Catatan</th></tr></thead>
+        <thead>
+          <tr><th>No</th><th>Kriteria</th><th>Nilai (1-10)</th><th>Catatan</th></tr>
+        </thead>
         <tbody>
           <tr><td>1</td><td>Ruangan bebas dari sampah</td><td><input name="n1" type="number" min="1" max="10"></td><td><input name="c1" type="text"></td></tr>
           <tr><td>2</td><td>Tempat sampah tersedia dan tidak berbau</td><td><input name="n2" type="number" min="1" max="10"></td><td><input name="c2" type="text"></td></tr>
-
           <tr><td>3</td><td>Tata ruang sesuai peruntukan</td><td><input name="n3" type="number" min="1" max="10"></td><td><input name="c3" type="text"></td></tr>
           <tr><td>4</td><td>Persediaan rapi, terawat, tidak berdebu</td><td><input name="n4" type="number" min="1" max="10"></td><td><input name="c4" type="text"></td></tr>
           <tr><td>5</td><td>Tersusun rapi, diberi label</td><td><input name="n5" type="number" min="1" max="10"></td><td><input name="c5" type="text"></td></tr>
           <tr><td>6</td><td>Tersedia SOP & daftar pengecekan expiry date</td><td><input name="n6" type="number" min="1" max="10"></td><td><input name="c6" type="text"></td></tr>
           <tr><td>7</td><td>Penempatan barang sesuai tempatnya</td><td><input name="n7" type="number" min="1" max="10"></td><td><input name="c7" type="text"></td></tr>
-
           <tr><td>8</td><td>Sesuai ketentuan HRD / atribut lengkap</td><td><input name="n8" type="number" min="1" max="10"></td><td><input name="c8" type="text"></td></tr>
           <tr><td>9</td><td>Keseragaman seragam</td><td><input name="n9" type="number" min="1" max="10"></td><td><input name="c9" type="text"></td></tr>
           <tr><td>10</td><td>Room arrangement sesuai indikator mutu</td><td><input name="n10" type="number" min="1" max="10"></td><td><input name="c10" type="text"></td></tr>
-
           <tr><td>11</td><td>Kreativitas terkait kemerdekaan</td><td><input name="n11" type="number" min="1" max="10"></td><td><input name="c11" type="text"></td></tr>
         </tbody>
       </table>
@@ -106,7 +104,6 @@
         <button id="btnSubmit" class="btn">Kirim Penilaian</button>
         <button id="btnClear" class="btn" style="background:#f1f6f5;color:var(--primary);border:1px solid #dceeea">Bersihkan</button>
       </div>
-
     </div>
 
     <aside class="right">
@@ -122,14 +119,14 @@
 </div>
 
 <script>
-/* Firebase config */
+/* Firebase Config */
 const firebaseConfig = {
   databaseURL: "https://penilaian-penunjang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* Predefined unit list (same order as select) */
+/* Data Unit */
 const units = [
   'MRI','Rontgen','CT Scan','Panoramik',
   'Tempat Arsip','TPPRI','Office',
@@ -138,97 +135,80 @@ const units = [
   'Ruang Resep / Apotek','Rawat Inap','Gudang','IGD'
 ];
 
-/* session check */
+/* Session Check */
 const username = localStorage.getItem('username');
 const role = localStorage.getItem('role');
 if (!username || !role) {
   alert('Silakan login terlebih dahulu!');
   location.href = 'index.html';
-} else if (role !== 'penilai' && role !== 'admin') {
+} else if (!['penilai','admin'].includes(role)) {
   alert('Role tidak dikenali!');
   location.href = 'index.html';
 }
-
-/* elements */
 document.getElementById('pName').textContent = username;
-const unitGrid = document.getElementById('unitGrid');
-const unitSelect = document.getElementById('unitSelect');
 
-/* render unit grid */
-function renderUnitGrid(visitedUnits) {
+/* Render Unit Grid */
+function renderUnitGrid(visited) {
+  const unitGrid = document.getElementById('unitGrid');
   unitGrid.innerHTML = '';
-  // create distinct ordered unique list from units array but avoid duplicate label "Gudang" ambiguity
-  // We'll mark visited by exact string match.
   units.forEach(u => {
     const div = document.createElement('div');
-    const visited = visitedUnits.has(u);
-    div.className = 'unit-item ' + (visited ? 'visited' : 'notvisited');
-    div.innerHTML = `<div style="font-weight:600">${u}</div><div class="small">${visited ? 'Sudah' : 'Belum'}</div>`;
+    div.className = 'unit-item ' + (visited.has(u) ? 'visited' : 'notvisited');
+    div.innerHTML = `<div style="font-weight:600">${u}</div><div class="small">${visited.has(u) ? 'Sudah' : 'Belum'}</div>`;
     unitGrid.appendChild(div);
   });
 }
 
-/* load visited units for this penilai */
+/* Load Visited Units */
 function loadVisitedUnits() {
-  db.ref('penilaian').orderByChild('penilai').equalTo(username).once('value', snap => {
-    const visited = new Set();
-    snap.forEach(child => {
-      const d = child.val();
-      if (d && d.unit) visited.add(d.unit);
+  db.ref('penilaian').orderByChild('penilai').equalTo(username).once('value')
+    .then(snap => {
+      const visited = new Set();
+      snap.forEach(child => {
+        const d = child.val();
+        if (d?.unit) visited.add(d.unit);
+      });
+      renderUnitGrid(visited);
+    })
+    .catch(err => {
+      console.error('Error load visited:', err);
     });
-    renderUnitGrid(visited);
-  });
 }
-
-/* initial load */
 loadVisitedUnits();
 
-/* Admin can still access penilaian page; if admin opened page, show name and allow usage */
+/* Button Actions */
 document.getElementById('btnDashboard').addEventListener('click', () => {
-  // admin & penilai both can view rekap (but rekap.html will check role)
   location.href = 'rekap.html';
 });
-
 document.getElementById('btnLogout').addEventListener('click', () => {
-  localStorage.removeItem('username');
-  localStorage.removeItem('role');
+  localStorage.clear();
   location.href = 'index.html';
 });
-
-/* Submit handler */
-document.getElementById('btnSubmit').addEventListener('click', async () => {
-  const unit = unitSelect.value;
-  // gather values 1..11
-  const data = { unit, penilai: username, waktu: new Date().toISOString() };
-  for (let i=1;i<=11;i++){
-    const n = document.querySelector(`[name="n${i}"]`).value;
-    const c = document.querySelector(`[name="c${i}"]`).value;
-    data[`nilai${i}`] = n || '0';
-    data[`catatan${i}`] = c || '';
-  }
-  // push to firebase
-  try {
-    await db.ref('penilaian').push(data);
-    alert('Penilaian berhasil disimpan!');
-    // refresh visited units
-    loadVisitedUnits();
-    // clear numeric inputs only
-    for (let i=1;i<=11;i++){
-      document.querySelector(`[name="n${i}"]`).value='';
-      document.querySelector(`[name="c${i}"]`).value='';
-    }
-  } catch (err) {
-    alert('Gagal menyimpan: ' + err.message);
-  }
-});
-
 document.getElementById('btnClear').addEventListener('click', () => {
   for (let i=1;i<=11;i++){
     document.querySelector(`[name="n${i}"]`).value='';
     document.querySelector(`[name="c${i}"]`).value='';
   }
 });
-</script>
 
+/* Submit Penilaian */
+document.getElementById('btnSubmit').addEventListener('click', async () => {
+  const unit = document.getElementById('unitSelect').value;
+  const data = { unit, penilai: username, waktu: new Date().toISOString() };
+  for (let i=1;i<=11;i++){
+    data[`nilai${i}`] = document.querySelector(`[name="n${i}"]`).value || '0';
+    data[`catatan${i}`] = document.querySelector(`[name="c${i}"]`).value || '';
+  }
+  try {
+    await db.ref('penilaian').push(data);
+    alert('Penilaian berhasil disimpan!');
+    loadVisitedUnits();
+    document.getElementById('btnClear').click();
+  } catch (err) {
+    console.error('Save error:', err);
+    alert('Gagal menyimpan: ' + err.message);
+  }
+});
+</script>
 </body>
 </html>
