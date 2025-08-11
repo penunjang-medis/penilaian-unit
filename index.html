@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penilaian Lomba Kebersihan - RS Mitra Plumbon</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f8fb;
+  }
+  .running-text {
+    background-color: #0077b6;
+    color: white;
+    padding: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .running-text span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+  }
+  .login-container {
+    max-width: 400px;
+    background: white;
+    margin: 80px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .login-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0077b6;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #005f87;
+  }
+</style>
+</head>
+<body>
+
+<!-- Running Text -->
+<div class="running-text">
+  <span>🏆 Selamat datang di Lomba Kebersihan Antar Unit Penunjang Medis RS Mitra Plumbon Cirebon — Mari kita wujudkan lingkungan kerja yang bersih, rapi, dan nyaman! 🧹✨</span>
+</div>
+
+<!-- Login Form -->
+<div class="login-container">
+  <h2>Login Penilaian</h2>
+  <input type="text" id="username" placeholder="User Name">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<script>
+  const users = {
+    "chirstien": "admin",
+    "graziese": "admin",
+    "inoh": "penilai",
+    "hendro": "penilai",
+    "titin": "penilai",
+    "andri": "penilai",
+    "yuni": "penilai",
+    "frangki": "penilai",
+    "hastuti": "penilai",
+    "katrin": "penilai",
+    "yuli": "penilai"
+  };
+
+  function login() {
+    const user = document.getElementById("username").value.trim().toLowerCase();
+    const pass = document.getElementById("password").value.trim().toLowerCase();
+
+    if (users[user] && users[user] === pass) {
+      alert("Login berhasil! Selamat datang " + user);
+      // Bisa diarahkan ke halaman penilaian
+      window.location.href = "penilaian.html";
+    } else {
+      alert("Username atau password salah!");
+    }
+  }
+</script>
+
+</body>
+</html>
