@@ -1,95 +1,89 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Login - Penilaian Lomba Kebersihan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Penilaian</title>
 <style>
-  :root{
-    --primary:#06b9a9;
-    --bg:#ffffff;
-    --muted:#f4f7f6;
-    --text:#0b3a36;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--muted);color:var(--text)}
-  .topbar{background:var(--primary);color:var(--bg);padding:12px 16px;font-weight:600}
-  .marquee{overflow:hidden;white-space:nowrap}
-  .marquee span{display:inline-block;padding-left:100%;animation:marq 16s linear infinite}
-  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-  .card{max-width:420px;margin:40px auto;background:var(--bg);border-radius:10px;padding:20px;box-shadow:0 8px 24px rgba(6,185,169,0.12)}
-  h2{margin:0 0 14px;color:var(--primary);text-align:center}
-  label{display:block;margin:8px 0 6px;font-weight:600}
-  input[type="text"],input[type="password"]{width:100%;padding:10px;border-radius:8px;border:1px solid #e0e6e5}
-  button{width:100%;padding:10px;border-radius:8px;border:none;background:var(--primary);color:var(--bg);font-weight:700;margin-top:14px;cursor:pointer}
-  small{display:block;text-align:center;margin-top:10px;color:#3f6f6b}
-  .credits{max-width:900px;margin:18px auto;text-align:center;color:#6c9; font-size:13px}
-  @media (max-width:420px){.card{margin:20px 12px}}
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        color: #333;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background-color: #06b9a9;
+        color: white;
+        padding: 15px;
+        font-size: 20px;
+    }
+    .container {
+        margin-top: 50px;
+    }
+    input {
+        padding: 10px;
+        margin: 8px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    button {
+        background-color: #06b9a9;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #049e92;
+    }
 </style>
 </head>
 <body>
+<header>
+    Selamat Datang di Lomba Kebersihan Antar Unit Penunjang Medis RS Mitra Plumbon
+</header>
 
-<div class="topbar">
-  <div class="marquee"><span>🏆 Selamat datang di Lomba Kebersihan Antar Unit Penunjang Medis RS Mitra Plumbon Cirebon — Mari kita wujudkan lingkungan kerja yang bersih, rapi, dan nyaman!</span></div>
-</div>
-
-<div class="card" role="main">
-  <h2>Login Penilaian</h2>
-
-  <label for="username">User name</label>
-  <input id="username" type="text" placeholder="masukkan username..." autocomplete="username">
-
-  <label for="password">Password</label>
-  <input id="password" type="password" placeholder="masukkan password..." autocomplete="current-password">
-
-  <button id="btnLogin">Login</button>
-
-  <small>Contoh akun: chirstien (admin) • graziese (admin) • inoh (penilai) • hendro (penilai) • dst.</small>
+<div class="container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="login()">Masuk</button>
 </div>
 
 <script>
-/*
- Simple client-side user list.
- - "admin" role will go to rekap.html
- - "penilai" role will go to penilaian.html
-*/
 const users = {
-  "chirstien": "admin",
-  "graziese": "admin",
-  "inoh": "penilai",
-  "hendro": "penilai",
-  "titin": "penilai",
-  "andri": "penilai",
-  "yuni": "penilai",
-  "frangki": "penilai",
-  "hastuti": "penilai",
-  "katrin": "penilai",
-  "yuli": "penilai"
+    "chirstien": {password: "admin", role: "admin"},
+    "graziese": {password: "admin", role: "admin"},
+    "inoh": {password: "penilai", role: "penilai"},
+    "hendro": {password: "penilai", role: "penilai"},
+    "titin": {password: "penilai", role: "penilai"},
+    "andri": {password: "penilai", role: "penilai"},
+    "yuni": {password: "penilai", role: "penilai"},
+    "frangki": {password: "penilai", role: "penilai"},
+    "hastuti": {password: "penilai", role: "penilai"},
+    "katrin": {password: "penilai", role: "penilai"},
+    "yuli": {password: "penilai", role: "penilai"}
 };
 
-document.getElementById('btnLogin').addEventListener('click', () => {
-  const u = (document.getElementById('username').value || '').trim().toLowerCase();
-  const p = (document.getElementById('password').value || '').trim().toLowerCase();
-
-  if (!u || !p) {
-    alert('Masukkan username & password!');
-    return;
-  }
-
-  if (users[u] && users[u] === p) {
-    // simpan session sederhana
-    localStorage.setItem('username', u);
-    localStorage.setItem('role', p);
-    if (p === 'admin') {
-      location.href = 'rekap.html';
+function login() {
+    let u = document.getElementById("username").value.trim().toLowerCase();
+    let p = document.getElementById("password").value.trim();
+    if (users[u] && users[u].password === p) {
+        localStorage.setItem("username", u);
+        localStorage.setItem("role", users[u].role);
+        if (users[u].role === "admin") {
+            window.location.href = "rekap.html";
+        } else {
+            window.location.href = "penilaian.html";
+        }
     } else {
-      location.href = 'penilaian.html';
+        alert("Username atau password salah!");
     }
-  } else {
-    alert('Username atau password salah!');
-  }
-});
+}
 </script>
-
 </body>
 </html>
