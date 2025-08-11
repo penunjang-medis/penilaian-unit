@@ -1,125 +1,234 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form Penilaian</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Form Penilaian - Penilai</title>
+
+<!-- Firebase compat SDK (Realtime DB) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <style>
-    body {font-family: Arial, sans-serif; background: #ffffff; margin: 0;}
-    header {background: #06b9a9; color: white; padding: 10px; text-align: center;}
-    select, input, textarea {width: 95%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;}
-    button {background: #06b9a9; color: white; border: none; padding: 10px; margin-top: 10px; border-radius: 4px; cursor: pointer;}
-    button:hover {background: #049e92;}
-    .container {padding: 10px;}
-    table {width: 100%; border-collapse: collapse;}
-    th, td {padding: 6px; border: 1px solid #ccc;}
-    .visited {background-color: #d1f5f0;}
+  :root{--primary:#06b9a9;--bg:#ffffff;--muted:#f6fbfa;--text:#064f49}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Arial;background:var(--muted);color:var(--text);padding:12px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{font-weight:700;color:var(--primary)}
+  .btn{background:var(--primary);color:var(--bg);border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .container{max-width:1100px;margin:16px auto}
+  .panel{background:var(--bg);padding:14px;border-radius:10px;box-shadow:0 8px 20px rgba(6,185,169,0.08)}
+  .flex{display:flex;gap:12px;align-items:flex-start}
+  .left{flex:1;min-width:300px}
+  .right{width:320px}
+
+  h2{margin:0 0 10px;color:var(--primary)}
+  label{font-weight:600;margin-top:8px;display:block}
+  select,input[type="number"],input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid #eaeff0}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid #e6efee;padding:8px;text-align:left}
+  th{background:#f0faf9}
+  .unit-list{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:8px}
+  .unit-item{padding:8px;border-radius:8px;border:1px dashed #d9f0ec;background:#fcfffd;display:flex;justify-content:space-between;align-items:center}
+  .visited{background:#e9fff9;border:1px solid #bff1e6}
+  .notvisited{background:#fff9f7;border:1px solid #f6d9cf}
+  .small{font-size:13px;color:#3b6c67}
+  .actions{display:flex;gap:8px;margin-top:10px}
+  @media (max-width:900px){.flex{flex-direction:column}.right{width:100%}}
 </style>
 </head>
 <body>
 
 <header>
-    Form Penilaian Lomba Kebersihan
+  <div class="brand">Penilaian Lomba Kebersihan • RS Mitra Plumbon</div>
+  <div>
+    <button id="btnDashboard" class="btn">Dashboard Rekap</button>
+    <button id="btnLogout" class="btn" style="background:#ffffff;color:var(--primary);border:1px solid var(--primary)">Logout</button>
+  </div>
 </header>
 
 <div class="container">
-    <label>UNIT YANG DINILAI:</label>
-    <select id="unit">
+  <div class="panel flex">
+    <div class="left">
+      <h2>Form Penilaian</h2>
+
+      <label>Unit yang Dinilai</label>
+      <select id="unitSelect">
         <optgroup label="Radiologi">
-            <option>MRI</option>
-            <option>Rontgen</option>
-            <option>CT Scan</option>
-            <option>Panoramik</option>
+          <option>MRI</option>
+          <option>Rontgen</option>
+          <option>CT Scan</option>
+          <option>Panoramik</option>
         </optgroup>
         <optgroup label="RM (Rekam Medis)">
-            <option>Tempat Arsip</option>
-            <option>TPPRI</option>
-            <option>Office</option>
+          <option>Tempat Arsip</option>
+          <option>TPPRI</option>
+          <option>Office</option>
         </optgroup>
         <optgroup label="Gizi">
-            <option>Cook & Pastry</option>
-            <option>Distribusi</option>
-            <option>Gudang</option>
+          <option>Cook & Pastry</option>
+          <option>Distribusi</option>
+          <option>Gudang</option>
         </optgroup>
         <optgroup label="Lab (Laboratorium)">
-            <option>PK</option>
-            <option>PA</option>
+          <option>PK</option>
+          <option>PA</option>
         </optgroup>
         <optgroup label="Farmasi">
-            <option>Ruang Resep / Apotek</option>
-            <option>Rawat Inap</option>
-            <option>Gudang</option>
-            <option>IGD</option>
+          <option>Ruang Resep / Apotek</option>
+          <option>Rawat Inap</option>
+          <option>Gudang</option>
+          <option>IGD</option>
         </optgroup>
-    </select>
+      </select>
 
-    <table>
-        <tr><th>NO</th><th>KRITERIA</th><th>NILAI (1–10)</th><th>CATATAN</th></tr>
-        <tr><td>1</td><td>Ruangan bebas dari sampah</td><td><input type="number" min="1" max="10" id="n1"></td><td><input id="c1"></td></tr>
-        <tr><td>2</td><td>Tempat sampah tersedia dan tidak berbau</td><td><input type="number" min="1" max="10" id="n2"></td><td><input id="c2"></td></tr>
-        <tr><td>3</td><td>Tata ruang sesuai peruntukan</td><td><input type="number" min="1" max="10" id="n3"></td><td><input id="c3"></td></tr>
-    </table>
+      <table aria-label="kriteria">
+        <thead><tr><th>No</th><th>Kriteria</th><th>Nilai (1-10)</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Ruangan bebas dari sampah</td><td><input name="n1" type="number" min="1" max="10"></td><td><input name="c1" type="text"></td></tr>
+          <tr><td>2</td><td>Tempat sampah tersedia dan tidak berbau</td><td><input name="n2" type="number" min="1" max="10"></td><td><input name="c2" type="text"></td></tr>
 
-    <label>Nama Penilai:</label>
-    <input type="text" id="penilaiName">
+          <tr><td>3</td><td>Tata ruang sesuai peruntukan</td><td><input name="n3" type="number" min="1" max="10"></td><td><input name="c3" type="text"></td></tr>
+          <tr><td>4</td><td>Persediaan rapi, terawat, tidak berdebu</td><td><input name="n4" type="number" min="1" max="10"></td><td><input name="c4" type="text"></td></tr>
+          <tr><td>5</td><td>Tersusun rapi, diberi label</td><td><input name="n5" type="number" min="1" max="10"></td><td><input name="c5" type="text"></td></tr>
+          <tr><td>6</td><td>Tersedia SOP & daftar pengecekan expiry date</td><td><input name="n6" type="number" min="1" max="10"></td><td><input name="c6" type="text"></td></tr>
+          <tr><td>7</td><td>Penempatan barang sesuai tempatnya</td><td><input name="n7" type="number" min="1" max="10"></td><td><input name="c7" type="text"></td></tr>
 
-    <button onclick="kirim()">Kirim Penilaian</button>
+          <tr><td>8</td><td>Sesuai ketentuan HRD / atribut lengkap</td><td><input name="n8" type="number" min="1" max="10"></td><td><input name="c8" type="text"></td></tr>
+          <tr><td>9</td><td>Keseragaman seragam</td><td><input name="n9" type="number" min="1" max="10"></td><td><input name="c9" type="text"></td></tr>
+          <tr><td>10</td><td>Room arrangement sesuai indikator mutu</td><td><input name="n10" type="number" min="1" max="10"></td><td><input name="c10" type="text"></td></tr>
 
-    <h3>Unit Sudah Dinilai</h3>
-    <ul id="visited"></ul>
+          <tr><td>11</td><td>Kreativitas terkait kemerdekaan</td><td><input name="n11" type="number" min="1" max="10"></td><td><input name="c11" type="text"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="actions">
+        <button id="btnSubmit" class="btn">Kirim Penilaian</button>
+        <button id="btnClear" class="btn" style="background:#f1f6f5;color:var(--primary);border:1px solid #dceeea">Bersihkan</button>
+      </div>
+
+    </div>
+
+    <aside class="right">
+      <div class="panel">
+        <h3>Info Penilai</h3>
+        <div><strong>Nama:</strong> <span id="pName" class="small"></span></div>
+        <div style="margin-top:8px"><strong>Unit sudah dikunjungi:</strong></div>
+        <div id="unitGrid" class="unit-list" aria-live="polite" style="margin-top:8px"></div>
+        <div style="margin-top:12px" class="small">Unit yang sudah dikunjungi ditandai hijau.</div>
+      </div>
+    </aside>
+  </div>
 </div>
 
 <script>
-// Firebase Config (Ganti dengan punyamu)
-var firebaseConfig = {
-    apiKey: "AIzaSyCq-EXAMPLEKEY1234567890abcdefghi",
-    authDomain: "lomba-kebersihan-rsmp.firebaseapp.com",
-    databaseURL: "https://lomba-kebersihan-rsmp-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "lomba-kebersihan-rsmp",
-    storageBucket: "lomba-kebersihan-rsmp.appspot.com",
-    messagingSenderId: "987654321000",
-    appId: "1:987654321000:web:abcdef1234567890"
+/* Firebase config */
+const firebaseConfig = {
+  databaseURL: "https://penilaian-penunjang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Cek login
-if (!localStorage.getItem("role")) {
-    window.location.href = "index.html";
+/* Predefined unit list (same order as select) */
+const units = [
+  'MRI','Rontgen','CT Scan','Panoramik',
+  'Tempat Arsip','TPPRI','Office',
+  'Cook & Pastry','Distribusi','Gudang',
+  'PK','PA',
+  'Ruang Resep / Apotek','Rawat Inap','Gudang','IGD'
+];
+
+/* session check */
+const username = localStorage.getItem('username');
+const role = localStorage.getItem('role');
+if (!username || !role) {
+  alert('Silakan login terlebih dahulu!');
+  location.href = 'index.html';
+} else if (role !== 'penilai' && role !== 'admin') {
+  alert('Role tidak dikenali!');
+  location.href = 'index.html';
 }
 
-// Tampilkan unit sudah dinilai
-firebase.database().ref("penilaian").on("value", snap => {
-    let visitedList = document.getElementById("visited");
-    visitedList.innerHTML = "";
+/* elements */
+document.getElementById('pName').textContent = username;
+const unitGrid = document.getElementById('unitGrid');
+const unitSelect = document.getElementById('unitSelect');
+
+/* render unit grid */
+function renderUnitGrid(visitedUnits) {
+  unitGrid.innerHTML = '';
+  // create distinct ordered unique list from units array but avoid duplicate label "Gudang" ambiguity
+  // We'll mark visited by exact string match.
+  units.forEach(u => {
+    const div = document.createElement('div');
+    const visited = visitedUnits.has(u);
+    div.className = 'unit-item ' + (visited ? 'visited' : 'notvisited');
+    div.innerHTML = `<div style="font-weight:600">${u}</div><div class="small">${visited ? 'Sudah' : 'Belum'}</div>`;
+    unitGrid.appendChild(div);
+  });
+}
+
+/* load visited units for this penilai */
+function loadVisitedUnits() {
+  db.ref('penilaian').orderByChild('penilai').equalTo(username).once('value', snap => {
+    const visited = new Set();
     snap.forEach(child => {
-        if (child.val().penilai === localStorage.getItem("username")) {
-            let li = document.createElement("li");
-            li.textContent = child.val().unit;
-            visitedList.appendChild(li);
-        }
+      const d = child.val();
+      if (d && d.unit) visited.add(d.unit);
     });
+    renderUnitGrid(visited);
+  });
+}
+
+/* initial load */
+loadVisitedUnits();
+
+/* Admin can still access penilaian page; if admin opened page, show name and allow usage */
+document.getElementById('btnDashboard').addEventListener('click', () => {
+  // admin & penilai both can view rekap (but rekap.html will check role)
+  location.href = 'rekap.html';
 });
 
-function kirim() {
-    let data = {
-        unit: document.getElementById("unit").value,
-        penilai: document.getElementById("penilaiName").value,
-        nilai1: document.getElementById("n1").value,
-        nilai2: document.getElementById("n2").value,
-        nilai3: document.getElementById("n3").value,
-        catatan1: document.getElementById("c1").value,
-        catatan2: document.getElementById("c2").value,
-        catatan3: document.getElementById("c3").value,
-        token: "RSMP2025"
-    };
-    firebase.database().ref("penilaian").push(data, err => {
-        if (err) alert("Gagal kirim: " + err);
-        else alert("Penilaian terkirim!");
-    });
-}
+document.getElementById('btnLogout').addEventListener('click', () => {
+  localStorage.removeItem('username');
+  localStorage.removeItem('role');
+  location.href = 'index.html';
+});
+
+/* Submit handler */
+document.getElementById('btnSubmit').addEventListener('click', async () => {
+  const unit = unitSelect.value;
+  // gather values 1..11
+  const data = { unit, penilai: username, waktu: new Date().toISOString() };
+  for (let i=1;i<=11;i++){
+    const n = document.querySelector(`[name="n${i}"]`).value;
+    const c = document.querySelector(`[name="c${i}"]`).value;
+    data[`nilai${i}`] = n || '0';
+    data[`catatan${i}`] = c || '';
+  }
+  // push to firebase
+  try {
+    await db.ref('penilaian').push(data);
+    alert('Penilaian berhasil disimpan!');
+    // refresh visited units
+    loadVisitedUnits();
+    // clear numeric inputs only
+    for (let i=1;i<=11;i++){
+      document.querySelector(`[name="n${i}"]`).value='';
+      document.querySelector(`[name="c${i}"]`).value='';
+    }
+  } catch (err) {
+    alert('Gagal menyimpan: ' + err.message);
+  }
+});
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  for (let i=1;i<=11;i++){
+    document.querySelector(`[name="n${i}"]`).value='';
+    document.querySelector(`[name="c${i}"]`).value='';
+  }
+});
 </script>
+
 </body>
 </html>
