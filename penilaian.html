@@ -7,50 +7,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f5faff;
-        margin: 0;
-        padding: 0;
-    }
-    h2 {
-        text-align: center;
-        color: #0077b6;
-        padding: 15px;
-    }
-    form {
-        max-width: 800px;
-        margin: auto;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    select, input[type="number"], input[type="text"], textarea {
-        width: 100%;
-        padding: 8px;
-        margin: 6px 0;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-    table th, table td {
-        border: 1px solid #ccc;
-        padding: 8px;
-    }
-    button {
-        background-color: #0077b6;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-    }
+    body { font-family: Arial, sans-serif; background-color: #f5faff; margin: 0; padding: 0; }
+    h2 { text-align: center; color: #0077b6; padding: 15px; }
+    form { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    select, input[type="number"], input[type="text"] { width: 100%; padding: 6px; margin: 4px 0; border-radius: 5px; border: 1px solid #ccc; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    table th, table td { border: 1px solid #ccc; padding: 8px; }
+    button { background-color: #0077b6; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -95,23 +58,23 @@
         <tr><td>2</td><td>Tempat sampah tersedia dan tidak berbau</td><td><input type="number" min="1" max="10" name="nilai2"></td><td><input type="text" name="catatan2"></td></tr>
 
         <tr><td colspan="4"><b>ASPEK KERAPIHAN</b></td></tr>
-        <tr><td>1</td><td>Tata ruang sesuai peruntukan</td><td><input type="number" min="1" max="10" name="nilai3"></td><td><input type="text" name="catatan3"></td></tr>
-        <tr><td>2</td><td>Persediaan rapi, terawat, tidak berdebu</td><td><input type="number" min="1" max="10" name="nilai4"></td><td><input type="text" name="catatan4"></td></tr>
-        <tr><td>3</td><td>Tersusun rapi, diberi label</td><td><input type="number" min="1" max="10" name="nilai5"></td><td><input type="text" name="catatan5"></td></tr>
-        <tr><td>4</td><td>Tersedia SOP dan daftar pengecekan expiry date</td><td><input type="number" min="1" max="10" name="nilai6"></td><td><input type="text" name="catatan6"></td></tr>
-        <tr><td>5</td><td>Penempatan barang sesuai dengan tempatnya</td><td><input type="number" min="1" max="10" name="nilai7"></td><td><input type="text" name="catatan7"></td></tr>
+        <tr><td>3</td><td>Tata ruang sesuai peruntukan</td><td><input type="number" min="1" max="10" name="nilai3"></td><td><input type="text" name="catatan3"></td></tr>
+        <tr><td>4</td><td>Persediaan rapi, terawat, tidak berdebu</td><td><input type="number" min="1" max="10" name="nilai4"></td><td><input type="text" name="catatan4"></td></tr>
+        <tr><td>5</td><td>Tersusun rapi, diberi label</td><td><input type="number" min="1" max="10" name="nilai5"></td><td><input type="text" name="catatan5"></td></tr>
+        <tr><td>6</td><td>Tersedia SOP dan daftar pengecekan expiry date</td><td><input type="number" min="1" max="10" name="nilai6"></td><td><input type="text" name="catatan6"></td></tr>
+        <tr><td>7</td><td>Penempatan barang sesuai tempatnya</td><td><input type="number" min="1" max="10" name="nilai7"></td><td><input type="text" name="catatan7"></td></tr>
 
         <tr><td colspan="4"><b>ASPEK KESERASIAN</b></td></tr>
-        <tr><td>1</td><td>Sesuai ketentuan HRD / atribut lengkap</td><td><input type="number" min="1" max="10" name="nilai8"></td><td><input type="text" name="catatan8"></td></tr>
-        <tr><td>2</td><td>Keseragaman seragam</td><td><input type="number" min="1" max="10" name="nilai9"></td><td><input type="text" name="catatan9"></td></tr>
-        <tr><td>3</td><td>Room arrangement sesuai indikator mutu</td><td><input type="number" min="1" max="10" name="nilai10"></td><td><input type="text" name="catatan10"></td></tr>
+        <tr><td>8</td><td>Sesuai ketentuan HRD / atribut lengkap</td><td><input type="number" min="1" max="10" name="nilai8"></td><td><input type="text" name="catatan8"></td></tr>
+        <tr><td>9</td><td>Keseragaman seragam</td><td><input type="number" min="1" max="10" name="nilai9"></td><td><input type="text" name="catatan9"></td></tr>
+        <tr><td>10</td><td>Room arrangement sesuai indikator mutu</td><td><input type="number" min="1" max="10" name="nilai10"></td><td><input type="text" name="catatan10"></td></tr>
 
         <tr><td colspan="4"><b>KREATIVITAS</b></td></tr>
-        <tr><td></td><td>Kreativitas terkait kemerdekaan</td><td><input type="number" min="1" max="10" name="nilai11"></td><td><input type="text" name="catatan11"></td></tr>
+        <tr><td>11</td><td>Kreativitas terkait kemerdekaan</td><td><input type="number" min="1" max="10" name="nilai11"></td><td><input type="text" name="catatan11"></td></tr>
     </table>
 
     <label>Nama Penilai:</label>
-    <input type="text" id="penilai" required>
+    <input type="text" id="penilai" readonly>
 
     <button type="submit">Kirim Penilaian</button>
 </form>
@@ -121,31 +84,33 @@
   const firebaseConfig = {
     databaseURL: "https://penilaian-penunjang-default-rtdb.asia-southeast1.firebasedatabase.app/"
   };
-
-  // Inisialisasi Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Submit form
+  // Ambil nama penilai dari localStorage
+  const penilai = localStorage.getItem("penilai");
+  if (!penilai) {
+    alert("Silakan login terlebih dahulu!");
+    window.location.href = "index.html";
+  } else {
+    document.getElementById("penilai").value = penilai;
+  }
+
   document.getElementById("penilaianForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const unit = document.getElementById("unit").value;
-    const penilai = document.getElementById("penilai").value;
-
     const data = {
       unit: unit,
       penilai: penilai,
       waktu: new Date().toISOString()
     };
 
-    // Ambil semua nilai & catatan
     for (let i = 1; i <= 11; i++) {
       data[`nilai${i}`] = document.querySelector(`[name="nilai${i}"]`).value;
       data[`catatan${i}`] = document.querySelector(`[name="catatan${i}"]`).value;
     }
 
-    // Kirim ke Firebase
     db.ref("penilaian").push(data)
       .then(() => {
         alert("Penilaian berhasil disimpan!");
