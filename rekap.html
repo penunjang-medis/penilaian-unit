@@ -1,65 +1,169 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rekap Penilaian</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rekap Penilaian - Admin</title>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <style>
-    body {font-family: Arial, sans-serif; background: #ffffff; margin: 0;}
-    header {background: #06b9a9; color: white; padding: 10px; text-align: center;}
-    table {width: 100%; border-collapse: collapse;}
-    th, td {padding: 6px; border: 1px solid #ccc;}
-    button {background: #06b9a9; color: white; border: none; padding: 8px 12px; margin: 10px; border-radius: 4px; cursor: pointer;}
-    button:hover {background: #049e92;}
+  :root{--primary:#06b9a9;--bg:#ffffff;--muted:#f6fbfa;--text:#064f49}
+  body{margin:0;font-family:system-ui,Arial;background:var(--muted);color:var(--text);padding:12px}
+  header{display:flex;align-items:center;justify-content:space-between}
+  .brand{font-weight:700;color:var(--primary)}
+  .btn{background:var(--primary);color:var(--bg);border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .container{max-width:1200px;margin:16px auto}
+  .panel{background:var(--bg);padding:14px;border-radius:10px;box-shadow:0 8px 20px rgba(6,185,169,0.08)}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{border:1px solid #e6efee;padding:8px;text-align:left}
+  th{background:#f0faf9}
+  .small{font-size:13px;color:#3f6c67}
+  .actions{display:flex;gap:8px}
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4)}
+  .modal .box{background:var(--bg);padding:16px;border-radius:8px;max-width:800px;width:95%;max-height:90vh;overflow:auto}
+  @media (max-width:700px){table{font-size:13px}}
 </style>
 </head>
 <body>
+
 <header>
-    Dashboard Rekap Penilaian
+  <div class="brand">Dashboard Rekap • RS Mitra Plumbon</div>
+  <div class="actions">
+    <button id="btnToForm" class="btn">Isi Penilaian</button>
+    <button id="btnLogout" class="btn" style="background:#fff;color:var(--primary);border:1px solid var(--primary)">Logout</button>
+  </div>
 </header>
-<button onclick="window.location.href='penilaian.html'">Ke Form Penilaian</button>
-<table id="rekapTable">
-    <tr><th>Unit</th><th>Penilai</th><th>Nilai 1</th><th>Nilai 2</th><th>Nilai 3</th><th>Catatan</th></tr>
-</table>
+
+<div class="container">
+  <div class="panel">
+    <h2 style="color:var(--primary);margin:0">Rekap Semua Penilaian</h2>
+    <div class="small" style="margin-top:8px">Admin dapat melihat semua entri. Klik "Lihat" untuk detail.</div>
+
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Unit</th>
+          <th>Penilai</th>
+          <th>Waktu</th>
+          <th>Total Nilai</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- modal detail -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="box">
+    <button id="closeModal" style="float:right;background:#eee;border:0;padding:6px;border-radius:6px;cursor:pointer">Tutup</button>
+    <h3>Detail Penilaian</h3>
+    <div id="detail"></div>
+  </div>
+</div>
 
 <script>
-// Firebase Config
-var firebaseConfig = {
-    apiKey: "AIzaSyCq-EXAMPLEKEY1234567890abcdefghi",
-    authDomain: "lomba-kebersihan-rsmp.firebaseapp.com",
-    databaseURL: "https://lomba-kebersihan-rsmp-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "lomba-kebersihan-rsmp",
-    storageBucket: "lomba-kebersihan-rsmp.appspot.com",
-    messagingSenderId: "987654321000",
-    appId: "1:987654321000:web:abcdef1234567890"
+/* session check */
+const username = localStorage.getItem('username');
+const role = localStorage.getItem('role');
+if (!username || !role) {
+  alert('Silakan login!');
+  location.href = 'index.html';
+}
+if (role !== 'admin') {
+  // non-admin masih boleh lihat? Kita blokir
+  alert('Akses ditolak. Halaman ini khusus admin.');
+  location.href = 'index.html';
+}
+
+/* Firebase */
+const firebaseConfig = {
+  databaseURL: "https://penilaian-penunjang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Cek login
-if (localStorage.getItem("role") !== "admin") {
-    window.location.href = "index.html";
+const tbody = document.querySelector('#tbl tbody');
+const modal = document.getElementById('modal');
+const detail = document.getElementById('detail');
+
+function formatDate(iso){
+  try { return new Date(iso).toLocaleString(); } catch(e){ return iso; }
 }
 
-// Ambil data
-firebase.database().ref("penilaian").on("value", snap => {
-    let table = document.getElementById("rekapTable");
-    table.innerHTML = "<tr><th>Unit</th><th>Penilai</th><th>Nilai 1</th><th>Nilai 2</th><th>Nilai 3</th><th>Catatan</th></tr>";
-    snap.forEach(child => {
-        let v = child.val();
-        let row = `<tr>
-            <td>${v.unit}</td>
-            <td>${v.penilai}</td>
-            <td>${v.nilai1}</td>
-            <td>${v.nilai2}</td>
-            <td>${v.nilai3}</td>
-            <td>${v.catatan1 || ""} ${v.catatan2 || ""} ${v.catatan3 || ""}</td>
-        </tr>`;
-        table.innerHTML += row;
+db.ref('penilaian').on('value', snap => {
+  tbody.innerHTML = '';
+  let i = 0;
+  snap.forEach(child => {
+    i++;
+    const d = child.val();
+    // compute total
+    let total = 0;
+    for (let k=1;k<=11;k++){
+      total += parseInt(d['nilai'+k] || 0);
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i}</td>
+      <td>${d.unit || ''}</td>
+      <td>${d.penilai || ''}</td>
+      <td>${formatDate(d.waktu)}</td>
+      <td>${total}</td>
+      <td><button data-key="${child.key}" class="btnDetail" style="background:#e8fbf8;color:#064f49;border:1px solid #d0faf3;padding:6px 8px;border-radius:6px;cursor:pointer">Lihat</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // attach handlers
+  document.querySelectorAll('.btnDetail').forEach(b => {
+    b.addEventListener('click', () => {
+      const key = b.getAttribute('data-key');
+      db.ref('penilaian/' + key).once('value').then(s => {
+        const v = s.val();
+        let html = `<p><strong>Unit:</strong> ${v.unit || ''}<br><strong>Penilai:</strong> ${v.penilai || ''}<br><strong>Waktu:</strong> ${formatDate(v.waktu)}</p>`;
+        html += '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #eee;padding:6px">No</th><th style="border:1px solid #eee;padding:6px">Kriteria</th><th style="border:1px solid #eee;padding:6px">Nilai</th><th style="border:1px solid #eee;padding:6px">Catatan</th></tr></thead><tbody>';
+        const criteria = [
+          'Ruangan bebas dari sampah',
+          'Tempat sampah tersedia dan tidak berbau',
+          'Tata ruang sesuai peruntukan',
+          'Persediaan rapi, terawat, tidak berdebu',
+          'Tersusun rapi, diberi label',
+          'Tersedia SOP & daftar pengecekan expiry date',
+          'Penempatan barang sesuai tempatnya',
+          'Sesuai ketentuan HRD / atribut lengkap',
+          'Keseragaman seragam',
+          'Room arrangement sesuai indikator mutu',
+          'Kreativitas terkait kemerdekaan'
+        ];
+        for (let j=1;j<=11;j++){
+          html += `<tr><td style="border:1px solid #eee;padding:6px">${j}</td><td style="border:1px solid #eee;padding:6px">${criteria[j-1]}</td><td style="border:1px solid #eee;padding:6px">${v['nilai'+j] || 0}</td><td style="border:1px solid #eee;padding:6px">${v['catatan'+j] || ''}</td></tr>`;
+        }
+        html += '</tbody></table>';
+        detail.innerHTML = html;
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden','false');
+      });
     });
+  });
+});
+
+/* modal controls */
+document.getElementById('closeModal').addEventListener('click', () => { modal.style.display='none'; modal.setAttribute('aria-hidden','true'); });
+
+/* navigation */
+document.getElementById('btnToForm').addEventListener('click', () => {
+  location.href = 'penilaian.html';
+});
+document.getElementById('btnLogout').addEventListener('click', () => {
+  localStorage.removeItem('username'); localStorage.removeItem('role');
+  location.href = 'index.html';
 });
 </script>
+
 </body>
 </html>
