@@ -47,8 +47,8 @@
  <script>
 /*
  Simple client-side user list.
- - "admin" role will go to rekap.html
- - "penilai" role will go to penilaian.html
+ - "admin" role will go ke rekap.html
+ - "penilai" role akan ke penilaian.html
 */
 const users = {
   "Christien_Iwan": "admin",
@@ -56,37 +56,39 @@ const users = {
   "Ino_Hadiwinata": "penilai",
   "Tri_Hendro": "penilai",
   "Titin_Supriatin": "penilai",
-  "Andri_Sani_Pratama,": "penilai",
+  "Andri_Sani_Pratama": "penilai",
   "Yuni_Mulyani": "penilai",
   "Franky": "penilai",
   "Hastuti": "penilai",
-  "Katrin.Fitria_H,": "penilai",
+  "Katrin.Fitria_H": "penilai",
   "Yuliati": "penilai"
 };
 
 document.getElementById('btnLogin').addEventListener('click', () => {
-  const u = (document.getElementById('username').value || '').trim().toLowerCase();
-  const p = (document.getElementById('password').value || '').trim().toLowerCase();
+  const u = (document.getElementById('username').value || '').trim();
+  const p = (document.getElementById('password').value || '').trim();
 
   if (!u || !p) {
     alert('Masukkan username & password!');
     return;
   }
 
+  // cek username & password (password = role)
   if (users[u] && users[u] === p) {
-    // simpan session sederhana
     localStorage.setItem('username', u);
     localStorage.setItem('role', p);
+
     if (p === 'admin') {
-      location.href = 'rekap.html';
+      location.href = 'rekap.html'; // pastikan file ini ada
     } else {
-      location.href = 'penilaian.html';
+      location.href = 'penilaian.html'; // pastikan file ini ada
     }
   } else {
     alert('Username atau password salah!');
   }
 });
 </script>
+
 
 </body>
 </html>
