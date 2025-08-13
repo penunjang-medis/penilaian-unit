@@ -192,12 +192,14 @@ db.ref('penilaian').on('value', snap => {
   });
 
   // Event tombol detail
-  document.querySelectorAll('.btnDetail').forEach(b => {
-    b.addEventListener('click', () => {
-      const key = b.getAttribute('data-key');
-      db.ref('penilaian/' + key).once('value').then(s => {
-        const v = s.val();
-        const criteria = [
+document.querySelectorAll('.btnDetail').forEach(b => {
+  b.addEventListener('click', () => {
+    const key = b.getAttribute('data-key');
+    db.ref('penilaian/' + key).once('value').then(s => {
+      const v = s.val();
+      
+      // Urutan kriteria sesuai tabel terbaru
+      const criteria = [
         'Ruangan bersih',
         'Ruangan bebas dari sampah',
         'Lemari, meja komputer bersih dan tidak berdebu',
@@ -211,7 +213,8 @@ db.ref('penilaian').on('value', snap => {
         'Aroma ruangan wangi',
         'Terdapat struktur organisasi dan indikator mutu',
         'Kreativitas unit (berhubungan dengan Kemerdekaan)'
-        ];
+      ];
+      
         let html = `
           <p>
             <strong>Unit:</strong> ${v.unit || ''}<br>
