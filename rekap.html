@@ -198,17 +198,19 @@ db.ref('penilaian').on('value', snap => {
       db.ref('penilaian/' + key).once('value').then(s => {
         const v = s.val();
         const criteria = [
-          'Ruangan bebas dari sampah',
-          'Tempat sampah tersedia dan tidak berbau',
-          'Tata ruang sesuai peruntukan',
-          'Persediaan rapi, terawat, tidak berdebu',
-          'Tersusun rapi, diberi label',
-          'Tersedia SOP & daftar pengecekan expiry date',
-          'Penempatan barang sesuai tempatnya',
-          'Sesuai ketentuan HRD / atribut lengkap',
-          'Keseragaman seragam',
-          'Room arrangement sesuai indikator mutu',
-          'Kreativitas terkait kemerdekaan'
+        'Ruangan bersih',
+        'Ruangan bebas dari sampah',
+        'Lemari, meja komputer bersih dan tidak berdebu',
+        'Tong sampah sesuai isinya (tidak penuh)',
+        'Alat-alat tersusun rapi termasuk kabel',
+        'Tersedia handrub',
+        'Handwash terpasang di setiap wastafel',
+        'Penempatan barang sesuai tempatnya',
+        'Pakaian sesuai ketentuan HRD / atribut lengkap',
+        'Suhu dan kelembaban sesuai',
+        'Aroma ruangan wangi',
+        'Terdapat struktur organisasi dan indikator mutu',
+        'Kreativitas unit (berhubungan dengan Kemerdekaan)'
         ];
         let html = `
           <p>
