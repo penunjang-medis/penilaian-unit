@@ -122,6 +122,9 @@
       </thead>
       <tbody></tbody>
     </table>
+
+    <!-- Grafik di bawah tabel -->
+    <canvas id="nilaiChart" style="margin-top:20px;background:#fff;border-radius:10px;padding:10px"></canvas>
   </div>
 </div>
 
@@ -133,6 +136,9 @@
     <div id="detail"></div>
   </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 // Cek sesi login
@@ -166,10 +172,16 @@ function formatDate(iso) {
   }
 }
 
+let chartInstance;
+
 // Ambil data penilaian
 db.ref('penilaian').on('value', snap => {
   tbody.innerHTML = '';
   let i = 0;
+  const labels = [];
+  const nilaiData = [];
+  const targetData = [];
+
   snap.forEach(child => {
     i++;
     const d = child.val();
@@ -177,6 +189,8 @@ db.ref('penilaian').on('value', snap => {
     for (let k = 1; k <= 13; k++) {
       total += parseInt(d['nilai'+k] || 0);
     }
+
+    // Tabel
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${i}</td>
@@ -189,40 +203,85 @@ db.ref('penilaian').on('value', snap => {
       </td>
     `;
     tbody.appendChild(tr);
+
+    // Data untuk grafik
+    labels.push(d.unit || 'Tanpa Nama');
+    nilaiData.push(total);
+    targetData.push(100);
   });
 
+  // Update / Buat Chart
+  if (chartInstance) {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = nilaiData;
+    chartInstance.data.datasets[1].data = targetData;
+    chartInstance.update();
+  } else {
+    const ctx = document.getElementById('nilaiChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Nilai',
+            data: nilaiData,
+            backgroundColor: 'rgba(6, 185, 169, 0.7)',
+            borderColor: 'rgba(6, 185, 169, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Target (100)',
+            data: targetData,
+            backgroundColor: 'rgba(255, 99, 132, 0.3)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            type: 'line',
+            fill: false,
+            tension: 0.2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Perbandingan Nilai dan Target' }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 110 }
+        }
+      }
+    });
+  }
+
   // Event tombol detail
-document.querySelectorAll('.btnDetail').forEach(b => {
-  b.addEventListener('click', () => {
-    const key = b.getAttribute('data-key');
-    db.ref('penilaian/' + key).once('value').then(s => {
-      const v = s.val();
-      
-      // Urutan kriteria sesuai tabel terbaru
-      const criteria = [
-        'Ruangan bersih',
-        'Ruangan bebas dari sampah',
-        'Lemari, meja komputer bersih dan tidak berdebu',
-        'Tong sampah sesuai isinya (tidak penuh)',
-        'Alat-alat tersusun rapi termasuk kabel',
-        'Tersedia handrub',
-        'Handwash terpasang di setiap wastafel',
-        'Penempatan barang sesuai tempatnya',
-        'Pakaian sesuai ketentuan HRD / atribut lengkap',
-        'Suhu dan kelembaban sesuai',
-        'Aroma ruangan wangi',
-        'Terdapat struktur organisasi dan indikator mutu',
-        'Kreativitas unit (berhubungan dengan Kemerdekaan)'
-      ];
-      
+  document.querySelectorAll('.btnDetail').forEach(b => {
+    b.addEventListener('click', () => {
+      const key = b.getAttribute('data-key');
+      db.ref('penilaian/' + key).once('value').then(s => {
+        const v = s.val();
+        const criteria = [
+          'Ruangan bersih',
+          'Ruangan bebas dari sampah',
+          'Lemari, meja komputer bersih dan tidak berdebu',
+          'Tong sampah sesuai isinya (tidak penuh)',
+          'Alat-alat tersusun rapi termasuk kabel',
+          'Tersedia handrub',
+          'Handwash terpasang di setiap wastafel',
+          'Penempatan barang sesuai tempatnya',
+          'Pakaian sesuai ketentuan HRD / atribut lengkap',
+          'Suhu dan kelembaban sesuai',
+          'Aroma ruangan wangi',
+          'Terdapat struktur organisasi dan indikator mutu',
+          'Kreativitas unit (berhubungan dengan Kemerdekaan)'
+        ];
+        
         let html = `
           <p>
             <strong>Unit:</strong> ${v.unit || ''}<br>
             <strong>Penilai:</strong> ${v.penilai || ''}<br>
             <strong>Waktu:</strong> ${formatDate(v.waktu)}
           </p>
-        `;
-        html += `
           <table style="width:100%;border-collapse:collapse">
             <thead>
               <tr>
@@ -251,6 +310,7 @@ document.querySelectorAll('.btnDetail').forEach(b => {
       });
     });
   });
+
 });
 
 // Tutup modal
