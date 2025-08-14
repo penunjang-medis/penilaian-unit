@@ -174,7 +174,7 @@ db.ref('penilaian').on('value', snap => {
     i++;
     const d = child.val();
     let total = 0;
-    for (let k = 1; k <= 11; k++) {
+    for (let k = 1; k <= 13; k++) {
       total += parseInt(d['nilai'+k] || 0);
     }
     const tr = document.createElement('tr');
@@ -234,7 +234,7 @@ document.querySelectorAll('.btnDetail').forEach(b => {
             </thead>
             <tbody>
         `;
-        for (let j = 1; j <= 11; j++) {
+        for (let j = 1; j <= 13; j++) {
           html += `
             <tr>
               <td style="border:1px solid #eee;padding:6px">${j}</td>
