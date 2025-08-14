@@ -71,6 +71,12 @@
     display: flex;
     gap: 8px;
   }
+  .no-data {
+    padding: 12px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+  }
   /* Modal */
   .modal {
     position: fixed;
@@ -109,6 +115,9 @@
     <h2 style="color:var(--primary);margin:0">Rekap Semua Penilaian</h2>
     <div class="small" style="margin-top:8px">Admin dapat melihat semua entri. Klik "Lihat" untuk detail.</div>
 
+    <!-- Grafik di atas tabel -->
+    <canvas id="nilaiChart" style="margin-top:20px;background:#fff;border-radius:10px;padding:10px"></canvas>
+
     <table id="tbl">
       <thead>
         <tr>
@@ -122,9 +131,7 @@
       </thead>
       <tbody></tbody>
     </table>
-
-    <!-- Grafik di bawah tabel -->
-    <canvas id="nilaiChart" style="margin-top:20px;background:#fff;border-radius:10px;padding:10px"></canvas>
+    <div id="noDataMessage" class="no-data" style="display:none;">Belum ada data penilaian</div>
   </div>
 </div>
 
@@ -161,8 +168,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const tbody = document.querySelector('#tbl tbody');
+const noDataMessage = document.getElementById('noDataMessage');
 const modal = document.getElementById('modal');
 const detail = document.getElementById('detail');
+let chartInstance;
 
 function formatDate(iso) {
   try {
@@ -171,8 +180,6 @@ function formatDate(iso) {
     return iso;
   }
 }
-
-let chartInstance;
 
 // Ambil data penilaian
 db.ref('penilaian').on('value', snap => {
@@ -204,19 +211,21 @@ db.ref('penilaian').on('value', snap => {
     `;
     tbody.appendChild(tr);
 
-    // Data untuk grafik
+    // Data grafik
     labels.push(d.unit || 'Tanpa Nama');
     nilaiData.push(total);
     targetData.push(100);
   });
 
-  // Update / Buat Chart
-  if (chartInstance) {
-    chartInstance.data.labels = labels;
-    chartInstance.data.datasets[0].data = nilaiData;
-    chartInstance.data.datasets[1].data = targetData;
-    chartInstance.update();
+  // Tampilkan pesan jika kosong
+  if (i === 0) {
+    noDataMessage.style.display = 'block';
   } else {
+    noDataMessage.style.display = 'none';
+  }
+
+  // Update / Buat Chart (hindari crash jika kosong)
+  if (!chartInstance) {
     const ctx = document.getElementById('nilaiChart').getContext('2d');
     chartInstance = new Chart(ctx, {
       type: 'bar',
@@ -247,11 +256,14 @@ db.ref('penilaian').on('value', snap => {
           legend: { position: 'top' },
           title: { display: true, text: 'Perbandingan Nilai dan Target' }
         },
-        scales: {
-          y: { beginAtZero: true, max: 110 }
-        }
+        scales: { y: { beginAtZero: true, max: 110 } }
       }
     });
+  } else {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = nilaiData;
+    chartInstance.data.datasets[1].data = targetData;
+    chartInstance.update();
   }
 
   // Event tombol detail
